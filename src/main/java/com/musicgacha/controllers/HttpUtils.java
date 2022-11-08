@@ -1,14 +1,9 @@
 package com.musicgacha.controllers;
 
-import java.net.InetAddress;
-import java.util.Arrays;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.catalina.util.RequestUtil;
-import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.thymeleaf.util.StringUtils;
 
 public final class HttpUtils {
 
@@ -24,21 +19,27 @@ public final class HttpUtils {
         "HTTP_FORWARDED",
         "HTTP_VIA",
         "REMOTE_ADDR"
+
+        // you can add more matching headers here ...
     };
 
     private HttpUtils() {
         // nothing here ...
     }
 
-    public static String getRequestIP(HttpServletRequest request) {
-        for (String header: IP_HEADERS) {
-            String value = request.getHeader("X-FORWARDED-FOR");
-            if (value == null || value.isEmpty()) {
-                continue;
-            }
-            String[] parts = value.split("\\s*,\\s*");
-            return parts[0];
+    public static ResponseEntity<String> getRequestIP(HttpServletRequest request) {
+        if (RequestContextHolder.getRequestAttributes() == null) {
+            return ResponseEntity.ok("0.0.0.0");
         }
-        return request.getRemoteAddr();
+
+        for (String header: IP_HEADERS) {
+            String ipList = request.getHeader(header);
+            if (ipList != null && ipList.length() != 0 && !"unknown".equalsIgnoreCase(ipList)) {
+                String ip = ipList.split(",")[0];
+                return ResponseEntity.ok(ip);
+            }
+        }
+        return ResponseEntity.ok(request.getRemoteAddr());
     }
+        
 }
