@@ -1,6 +1,14 @@
 package com.musicgacha.controllers;
 
+import java.net.InetAddress;
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.catalina.util.RequestUtil;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.thymeleaf.util.StringUtils;
 
 public final class HttpUtils {
 
@@ -16,8 +24,6 @@ public final class HttpUtils {
         "HTTP_FORWARDED",
         "HTTP_VIA",
         "REMOTE_ADDR"
-
-        // you can add more matching headers here ...
     };
 
     private HttpUtils() {
@@ -25,8 +31,8 @@ public final class HttpUtils {
     }
 
     public static String getRequestIP(HttpServletRequest request) {
-        for (String header: IP_HEADERS)  {
-            String value = request.getHeader(header);
+        for (String header: IP_HEADERS) {
+            String value = request.getHeader("X-FORWARDED-FOR");
             if (value == null || value.isEmpty()) {
                 continue;
             }
@@ -35,5 +41,4 @@ public final class HttpUtils {
         }
         return request.getRemoteAddr();
     }
-        
 }
