@@ -15,7 +15,7 @@ public class ClientIPAddressController {
 
     @RequestMapping(
         method = RequestMethod.GET,
-        value = "/client-ip-address",
+        value = "/ip",
         produces = MediaType.TEXT_PLAIN_VALUE
     )
     @ResponseBody
