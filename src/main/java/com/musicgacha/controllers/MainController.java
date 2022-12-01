@@ -4,6 +4,7 @@ package com.musicgacha.controllers;
  */
 
 import com.musicgacha.data.Song;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -11,12 +12,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 @Controller  // HTTP requests are handled as a controller, using the @Controller annotation
 public class MainController {
@@ -57,4 +66,22 @@ public class MainController {
         return "base/blank"; // returns HTML VIEW (greeting)
 
     }
+    @GetMapping("/api")
+    public String MethodName(Model model) throws IOException, InterruptedException, ParseException {
+        HttpRequest request = HttpRequest.newBuilder()
+		.uri(URI.create("https://covid-193.p.rapidapi.com/history?country=usa"))
+		.header("X-RapidAPI-Key", "42f28884f0msh2ee7d88bea53b8dp146d11jsn2587c1474f6f")
+		.header("X-RapidAPI-Host", "covid-193.p.rapidapi.com")
+		.method("GET", HttpRequest.BodyPublishers.noBody())
+		.build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        // System.out.println(response.body());
+        Object obj = new JSONParser().parse(response.body());
+        JSONObject jo = (JSONObject) obj;
+        System.out.println(jo.get("response"));
+        model.addAttribute("file", jo.get("response"));
+        // model.addAttribute("file", response.body());
+        return "api";
+    }
+    
 }
